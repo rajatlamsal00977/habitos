@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,6 +7,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { useTabBarContentPadding } from '@/hooks/useTabBarContentPadding';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { session, isGuest, signOut } = useAuth();
   const [busy, setBusy] = useState(false);
   const insets = useSafeAreaInsets();
@@ -36,6 +38,17 @@ export default function ProfileScreen() {
           {session?.user.email ?? 'Signed in'}
         </Text>
       )}
+
+      <Pressable
+        onPress={() => router.push('/setup-preferences')}
+        accessibilityRole="button"
+        accessibilityLabel="Edit my setup"
+        className="mt-8 w-full max-w-sm rounded-button border border-neutral-200 bg-white px-5 py-4 dark:border-dark-surface dark:bg-dark-surface">
+        <Text className="text-center text-base font-semibold text-primary dark:text-dark-primary">Edit my setup</Text>
+        <Text className="mt-1 text-center text-sm text-content-secondary dark:text-dark-text/80">
+          Identity, daily rhythm, tiny habit, reminder, and energy
+        </Text>
+      </Pressable>
 
       <Pressable
         onPress={onSignOut}

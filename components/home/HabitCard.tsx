@@ -2,13 +2,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MotiView } from 'moti';
 import { Pressable, Text, View } from 'react-native';
 
-export type HabitCardItem = {
-  id: string;
-  title: string;
-  progressDone: number;
-  progressTotal: number;
-  completed: boolean;
-};
+import type { HabitCardItem } from '@/types/habit-card';
+
+export type { HabitCardItem };
 
 type Props = {
   habit: HabitCardItem;

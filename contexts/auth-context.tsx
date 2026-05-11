@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 
 import { GUEST_SESSION_KEY, ONBOARDING_COMPLETED_KEY } from '@/constants/auth-storage';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { useHabitStore } from '@/store/useHabitStore';
 
 type AuthContextValue = {
   initialized: boolean;
@@ -36,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsGuest(guestFlag === 'true');
         setHasCompletedOnboarding(onboardingFlag === 'true');
         setInitialized(true);
+        await useHabitStore.getState().hydrate();
         return;
       }
 
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsGuest(sess ? false : guestFlag === 'true');
       setHasCompletedOnboarding(onboardingFlag === 'true');
       setInitialized(true);
+      await useHabitStore.getState().hydrate();
     }
 
     load();
@@ -134,6 +137,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboardingGroup = segments[0] === '(onboarding)';
+    const inSetupPreferences = segments[0] === 'setup-preferences';
     const allowed = Boolean(session) || isGuest;
 
     if (!allowed && !inAuthGroup) {
@@ -141,7 +145,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (allowed && !hasCompletedOnboarding && !inOnboardingGroup) {
+    if (allowed && !hasCompletedOnboarding && !inOnboardingGroup && !inSetupPreferences) {
       router.replace('/(onboarding)');
       return;
     }
