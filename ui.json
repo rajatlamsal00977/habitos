@@ -1,0 +1,366 @@
+{
+    "design_system_name": "Calm Habit Growth Mobile UI",
+    "design_philosophy": {
+      "core_feeling": [
+        "emotionally supportive",
+        "calm productivity",
+        "soft motivation",
+        "friendly guidance",
+        "playful wellness",
+        "low-pressure progress"
+      ],
+      "visual_style": [
+        "soft gradients",
+        "rounded corners",
+        "airy spacing",
+        "friendly mascot-driven UI",
+        "minimal cognitive load",
+        "pastel wellness aesthetic",
+        "modern mobile-first",
+        "micro-interaction focused"
+      ],
+      "ux_principles": [
+        "single-primary-action per screen",
+        "thumb-friendly interactions",
+        "large tap targets",
+        "visual rewards over text-heavy feedback",
+        "emotion-first design",
+        "progressive guidance",
+        "minimal dashboard clutter"
+      ]
+    },
+  
+    "color_palette": {
+      "primary": {
+        "main": "#5B5CEB",
+        "light": "#7D7EFF",
+        "soft": "#C9CBFF",
+        "gradient": [
+          "#5B5CEB",
+          "#6E72FF"
+        ],
+        "usage": [
+          "primary CTA buttons",
+          "progress highlights",
+          "active navigation states",
+          "reward indicators",
+          "focus elements"
+        ]
+      },
+  
+      "backgrounds": {
+        "warm_cream": "#F5EBDD",
+        "off_white": "#F8F8F8",
+        "soft_gray": "#EFEFEF",
+        "card_white": "#FFFFFF",
+        "light_beige": "#F4E7DA",
+        "usage": [
+          "main app background",
+          "section separation",
+          "calming empty spaces",
+          "card containers"
+        ]
+      },
+  
+      "accent_colors": {
+        "success_green": "#73C45E",
+        "soft_green": "#A5D86E",
+        "warning_orange": "#F4A261",
+        "peach": "#FFD7C2",
+        "soft_red": "#E76F51",
+        "reward_gold": "#FFC857"
+      },
+  
+      "text_colors": {
+        "primary_text": "#2C2C36",
+        "secondary_text": "#6F6F7B",
+        "muted_text": "#A0A0AE",
+        "white_text": "#FFFFFF"
+      },
+  
+      "surface_colors": {
+        "card_surface": "#FFFFFF",
+        "secondary_surface": "#EEF2FF",
+        "glass_surface": "rgba(255,255,255,0.75)"
+      },
+  
+      "shadow_colors": {
+        "soft_shadow": "rgba(0,0,0,0.06)",
+        "medium_shadow": "rgba(0,0,0,0.12)"
+      }
+    },
+  
+    "typography": {
+      "style": "modern rounded sans-serif",
+      "recommended_fonts": [
+        "SF Pro Display",
+        "Inter",
+        "Plus Jakarta Sans",
+        "Manrope"
+      ],
+  
+      "heading": {
+        "weight": 700,
+        "letter_spacing": "-0.02em",
+        "color": "#2C2C36"
+      },
+  
+      "body": {
+        "weight": 500,
+        "line_height": 1.5,
+        "color": "#6F6F7B"
+      },
+  
+      "button_text": {
+        "weight": 600,
+        "size": 17
+      }
+    },
+  
+    "spacing_system": {
+      "screen_padding": 24,
+      "card_padding": 20,
+      "section_spacing": 24,
+      "component_gap": 16,
+      "border_radius": {
+        "small": 12,
+        "medium": 20,
+        "large": 32,
+        "pill": 999
+      }
+    },
+  
+    "ui_components": {
+  
+      "buttons": {
+        "primary_button": {
+          "background": "linear-gradient(135deg, #5B5CEB, #6E72FF)",
+          "text_color": "#FFFFFF",
+          "border_radius": 18,
+          "height": 56,
+          "shadow": "0 10px 30px rgba(91,92,235,0.18)",
+          "interaction": [
+            "scale down slightly on tap",
+            "soft haptic feedback",
+            "gentle glow pulse after completion"
+          ]
+        },
+  
+        "secondary_button": {
+          "background": "#FFFFFF",
+          "text_color": "#5B5CEB",
+          "border": "1px solid #EAEAEA"
+        }
+      },
+  
+      "cards": {
+        "habit_card": {
+          "background": "#FFFFFF",
+          "border_radius": 28,
+          "padding": 20,
+          "shadow": "soft floating card shadow",
+          "layout": [
+            "title",
+            "progress row",
+            "optional image thumbnail",
+            "reward indicator"
+          ]
+        },
+  
+        "emotion_card": {
+          "background": "#FFFFFF",
+          "large rounded top corners": true,
+          "floating bottom sheet style": true
+        }
+      },
+  
+      "navigation": {
+        "bottom_nav": {
+          "floating": true,
+          "background": "rgba(255,255,255,0.9)",
+          "blur_effect": true,
+          "corner_radius": 999,
+          "active_icon_color": "#5B5CEB",
+          "inactive_icon_color": "#6F6F7B"
+        }
+      },
+  
+      "inputs": {
+        "search_bar": {
+          "background": "#F7F3EE",
+          "border_radius": 20,
+          "placeholder_color": "#A0A0AE",
+          "icon_color": "#A0A0AE"
+        }
+      },
+  
+      "progress_elements": {
+        "streak_indicator": {
+          "visual_style": "campfire + mascot interaction",
+          "accent_color": "#F4A261"
+        },
+  
+        "progress_dots": {
+          "active": "#5B5CEB",
+          "completed": "#73C45E",
+          "inactive": "#D9D9E5"
+        },
+  
+        "emotion_slider": {
+          "gradient": [
+            "#E76F51",
+            "#F4A261",
+            "#FFC857",
+            "#73C45E"
+          ]
+        }
+      }
+    },
+  
+    "illustration_style": {
+      "style": "3D soft mascot",
+      "characteristics": [
+        "rounded shapes",
+        "low-detail cute design",
+        "friendly emotional expressions",
+        "pastel lighting",
+        "slightly fuzzy texture",
+        "playful animations"
+      ],
+  
+      "usage": [
+        "daily motivation",
+        "habit completion rewards",
+        "onboarding guide",
+        "empty states",
+        "streak celebrations"
+      ]
+    },
+  
+    "animation_system": {
+      "principles": [
+        "gentle",
+        "non-distracting",
+        "organic motion",
+        "soft easing curves",
+        "reward-oriented motion"
+      ],
+  
+      "recommended_animations": [
+        "card float",
+        "micro bounce on completion",
+        "soft fade transitions",
+        "progress growth animation",
+        "glow pulse on streak increase",
+        "floating mascot idle animation",
+        "parallax background movement"
+      ],
+  
+      "animation_speed": {
+        "fast": "150ms",
+        "normal": "250ms",
+        "slow": "450ms"
+      }
+    },
+  
+    "screen_patterns": {
+  
+      "home_screen": {
+        "layout": [
+          "top greeting row",
+          "search field",
+          "reward counter",
+          "main mascot area",
+          "daily progress section",
+          "habit cards",
+          "floating navigation"
+        ],
+  
+        "background": "soft curved gradient sections",
+        "feeling": "welcoming and safe"
+      },
+  
+      "habit_session_screen": {
+        "layout": [
+          "minimal timer",
+          "large whitespace",
+          "encouraging illustration",
+          "subtle environmental scenery"
+        ],
+  
+        "feeling": "mindful and calming"
+      },
+  
+      "completion_screen": {
+        "layout": [
+          "large completion text",
+          "visual journey progression",
+          "emotion reflection card",
+          "single CTA"
+        ],
+  
+        "feeling": "rewarding and emotionally validating"
+      }
+    },
+  
+    "behavioral_design_mapping": {
+      "atomic_habits_principles": {
+        "make_it_obvious": [
+          "large CTA buttons",
+          "minimal distractions",
+          "clear progress visibility"
+        ],
+  
+        "make_it_attractive": [
+          "cute mascot",
+          "soft visuals",
+          "reward animations",
+          "pleasant gradients"
+        ],
+  
+        "make_it_easy": [
+          "single tap completion",
+          "low cognitive load",
+          "simple flows",
+          "minimal text"
+        ],
+  
+        "make_it_satisfying": [
+          "celebration animations",
+          "streak visuals",
+          "progress feedback",
+          "emotion tracking"
+        ]
+      }
+    },
+  
+    "mobile_design_notes": {
+      "safe_area_usage": "respect iOS dynamic island and bottom safe areas",
+      "thumb_zone_priority": true,
+      "dark_mode_recommended": true,
+      "dark_mode_style": {
+        "background": "#12131A",
+        "surface": "#1B1C24",
+        "primary": "#7D7EFF",
+        "text": "#F5F5F7"
+      }
+    },
+  
+    "development_notes_for_cursor_ai": {
+      "framework_recommendation": "React Native with Expo",
+      "styling": "NativeWind or Tailwind RN",
+      "animation_library": [
+        "Framer Motion",
+        "React Native Reanimated",
+        "Moti"
+      ],
+  
+      "ui_focus": [
+        "60fps animations",
+        "glassmorphism lightly applied",
+        "soft shadows",
+        "high accessibility",
+        "gesture-based interactions"
+      ]
+    }
+  }
