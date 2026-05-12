@@ -9,21 +9,26 @@ export type { HabitCardItem };
 type Props = {
   habit: HabitCardItem;
   onToggleComplete: () => void;
+  reduceMotion?: boolean;
+  lowEnergyActive?: boolean;
 };
 
-export function HabitCard({ habit, onToggleComplete }: Props) {
+export function HabitCard({ habit, onToggleComplete, reduceMotion = false, lowEnergyActive = false }: Props) {
   const { title, progressDone, progressTotal, completed } = habit;
+  const a11yLow = lowEnergyActive ? ' Low energy mode: tiny effort counts.' : '';
 
   return (
     <MotiView
-      from={{ opacity: 0, translateY: 8 }}
+      from={reduceMotion ? { opacity: 1, translateY: 0 } : { opacity: 0, translateY: 8 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'timing', duration: 320 }}>
+      transition={{ type: 'timing', duration: reduceMotion ? 0 : 320 }}>
       <Pressable
         onPress={onToggleComplete}
         accessibilityRole="button"
         accessibilityState={{ selected: completed }}
-        accessibilityLabel={completed ? `${title}, completed` : `${title}, mark complete`}
+        accessibilityLabel={
+          completed ? `${title}, completed.${a11yLow}` : `${title}, mark complete.${a11yLow}`
+        }
         className={`rounded-habit border border-neutral-100 bg-surface-card p-5 shadow-sm dark:border-white/10 dark:bg-dark-surface ${
           completed ? 'opacity-90' : ''
         }`}>
@@ -35,6 +40,11 @@ export function HabitCard({ habit, onToggleComplete }: Props) {
               }`}>
               {title}
             </Text>
+            {lowEnergyActive ? (
+              <Text className="mt-2 text-sm leading-5 text-content-secondary dark:text-dark-text/80">
+                Gentle mode: even a few seconds counts toward your streak.
+              </Text>
+            ) : null}
             <View className="mt-3 flex-row gap-1.5">
               {Array.from({ length: progressTotal }).map((_, i) => (
                 <View

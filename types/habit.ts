@@ -18,7 +18,7 @@ export type Habit = {
   fromOnboarding?: boolean;
 };
 
-/** Mirrors PRD habit completions; `emotionScore` filled in Phase 6 check-in. */
+/** Mirrors PRD habit completions. Check-in: `-1` worse, `0` same, `1` better, `null` skipped. */
 export type HabitCompletion = {
   id: string;
   habitId: string;
@@ -40,4 +40,6 @@ export type HabitPersistedStateV2 = {
   completions: HabitCompletion[];
   /** Last saved onboarding-style setup; may exist before first habit is seeded. */
   userSetup: UserSetup | null;
+  /** When equal to today's local date key, low-energy framing is active for that day. */
+  lowEnergyDateKey?: string | null;
 };

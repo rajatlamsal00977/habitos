@@ -6,10 +6,12 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AuthGate, AuthProvider, useAuth } from '@/contexts/auth-context';
+import { configureNotificationHandler } from '@/lib/notifications/daily-reminder';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -21,6 +23,10 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync();
+
+if (Platform.OS !== 'web') {
+  configureNotificationHandler();
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({

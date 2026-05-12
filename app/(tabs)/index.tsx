@@ -1,14 +1,24 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from 'react-native';
+import { useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { EmotionCheckInSheet } from '@/components/home/EmotionCheckInSheet';
 import { HabitCard } from '@/components/home/HabitCard';
 import { HomeHeader } from '@/components/home/HomeHeader';
 import { MascotHero } from '@/components/home/MascotHero';
 import { useTabBarContentPadding } from '@/hooks/useTabBarContentPadding';
-import { globalCommitmentStreak } from '@/lib/habits/dates';
+import { globalCommitmentStreak, localDateKey } from '@/lib/habits/dates';
 import { highlightedHabitCards } from '@/lib/habits/view-model';
 import { useHabitStore } from '@/store/useHabitStore';
 
@@ -26,11 +36,18 @@ export default function TodayScreen() {
   const router = useRouter();
   const greeting = useMemo(() => greetingForNow(), []);
   const microcopyIndex = useMemo(() => Math.floor(Date.now() / 86400000) % 3, []);
+  const reduceMotion = useReducedMotion() ?? false;
 
   const hydrated = useHabitStore((s) => s.hydrated);
   const habits = useHabitStore((s) => s.habits);
   const completions = useHabitStore((s) => s.completions);
+  const lowEnergyDateKey = useHabitStore((s) => s.lowEnergyDateKey);
   const toggleTodayCompletion = useHabitStore((s) => s.toggleTodayCompletion);
+  const toggleLowEnergyToday = useHabitStore((s) => s.toggleLowEnergyToday);
+  const [emotionQueue, setEmotionQueue] = useState<{ id: string; title: string }[]>([]);
+  const activeEmotion = emotionQueue[0];
+
+  const isLowEnergyToday = lowEnergyDateKey === localDateKey();
 
   const cardItems = useMemo(
     () => highlightedHabitCards(habits, completions, 3),
@@ -53,6 +70,32 @@ export default function TodayScreen() {
     scheme === 'dark'
       ? (['rgba(125,126,255,0.18)', 'transparent'] as const)
       : (['rgba(201,203,255,0.35)', 'transparent'] as const);
+
+  const handleToggleHabit = useCallback(
+    (habitId: string, title: string) => {
+      const { added, completionId } = toggleTodayCompletion(habitId);
+      if (added && completionId) {
+        setEmotionQueue((q) => [...q, { id: completionId, title }]);
+      }
+    },
+    [toggleTodayCompletion],
+  );
+
+  const onSkipEmotion = useCallback(() => {
+    setEmotionQueue((q) => q.slice(1));
+  }, []);
+
+  const onEmotionSelect = useCallback((score: -1 | 0 | 1) => {
+    setEmotionQueue((q) => {
+      const head = q[0];
+      if (head) {
+        queueMicrotask(() => {
+          useHabitStore.getState().setCompletionEmotion(head.id, score);
+        });
+      }
+      return q.slice(1);
+    });
+  }, []);
 
   if (!hydrated) {
     return (
@@ -94,14 +137,29 @@ export default function TodayScreen() {
           onAvatarPress={() => router.push('/profile')}
         />
 
-        <MascotHero streak={streak} microcopyIndex={microcopyIndex} />
+        <MascotHero streak={streak} microcopyIndex={microcopyIndex} reduceMotion={reduceMotion} />
 
         <Pressable
+          onPress={() => toggleLowEnergyToday()}
           accessibilityRole="button"
-          accessibilityLabel="Low energy mode"
-          className="mt-5 self-start rounded-full border border-neutral-200 bg-white/90 px-4 py-2.5 dark:border-dark-surface dark:bg-dark-surface/90">
-          <Text className="text-sm font-medium text-content-secondary dark:text-dark-text/80">
-            Low energy today?
+          accessibilityLabel={
+            isLowEnergyToday
+              ? 'Low energy mode is on for today. Tap to turn off.'
+              : 'Turn on low energy mode for today'
+          }
+          accessibilityState={{ selected: isLowEnergyToday }}
+          className={`mt-5 self-start rounded-full border px-4 py-2.5 ${
+            isLowEnergyToday
+              ? 'border-accent-warning/50 bg-accent-warning/15 dark:border-accent-warning/40 dark:bg-accent-warning/10'
+              : 'border-neutral-200 bg-white/90 dark:border-dark-surface dark:bg-dark-surface/90'
+          }`}>
+          <Text
+            className={`text-sm font-medium ${
+              isLowEnergyToday
+                ? 'text-content-primary dark:text-dark-text'
+                : 'text-content-secondary dark:text-dark-text/80'
+            }`}>
+            {isLowEnergyToday ? 'Low energy on — tap to turn off' : 'Low energy today?'}
           </Text>
         </Pressable>
 
@@ -129,11 +187,25 @@ export default function TodayScreen() {
         ) : (
           <View className="gap-4">
             {cardItems.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} onToggleComplete={() => toggleTodayCompletion(habit.id)} />
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                reduceMotion={reduceMotion}
+                lowEnergyActive={isLowEnergyToday}
+                onToggleComplete={() => handleToggleHabit(habit.id, habit.title)}
+              />
             ))}
           </View>
         )}
       </ScrollView>
+
+      <EmotionCheckInSheet
+        visible={!!activeEmotion}
+        habitTitle={activeEmotion?.title ?? ''}
+        reduceMotion={reduceMotion}
+        onSelect={onEmotionSelect}
+        onSkip={onSkipEmotion}
+      />
     </View>
   );
 }

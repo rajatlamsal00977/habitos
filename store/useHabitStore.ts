@@ -36,12 +36,15 @@ async function readPersisted(): Promise<ReadResult | null> {
     if (!Array.isArray(parsed.habits) || !Array.isArray(parsed.completions)) return null;
 
     if (parsed.version === 2) {
+      const lowEnergyDateKey =
+        typeof parsed.lowEnergyDateKey === 'string' ? parsed.lowEnergyDateKey : null;
       return {
         data: {
           version: 2,
           habits: normalizeLegacyHabits(parsed.habits),
           completions: parsed.completions,
           userSetup: parsed.userSetup ?? null,
+          lowEnergyDateKey,
         },
         migratedFromV1: false,
       };
@@ -55,6 +58,7 @@ async function readPersisted(): Promise<ReadResult | null> {
         habits,
         completions: parsed.completions,
         userSetup,
+        lowEnergyDateKey: null,
       },
       migratedFromV1: true,
     };
@@ -75,23 +79,34 @@ export type OnboardingHabitSeed = {
   energy: UserSetupEnergy;
 };
 
+export type ToggleCompletionResult = { added: boolean; completionId: string | null };
+
 type HabitStore = {
   hydrated: boolean;
   habits: Habit[];
   completions: HabitCompletion[];
   userSetup: UserSetup | null;
+  lowEnergyDateKey: string | null;
   hydrate: () => Promise<void>;
   /** Persists `userSetup` always; creates first habit only when none exist. */
   seedFromOnboarding: (payload: OnboardingHabitSeed) => void;
   /** Save setup from Profile / setup screen; updates primary habit fields when one exists. */
   applyUserSetupFromPayload: (payload: OnboardingHabitSeed) => void;
-  toggleTodayCompletion: (habitId: string) => void;
+  toggleTodayCompletion: (habitId: string) => ToggleCompletionResult;
+  /** Toggle low-energy framing for the current local day (PRD §10). */
+  toggleLowEnergyToday: () => void;
+  setCompletionEmotion: (completionId: string, score: -1 | 0 | 1) => void;
   todayCardItems: (max?: number, now?: Date) => HabitCardItem[];
   commitmentStreak: (now?: Date) => number;
 };
 
-function toV2(habits: Habit[], completions: HabitCompletion[], userSetup: UserSetup | null): HabitPersistedStateV2 {
-  return { version: 2, habits, completions, userSetup };
+function toV2(
+  habits: Habit[],
+  completions: HabitCompletion[],
+  userSetup: UserSetup | null,
+  lowEnergyDateKey: string | null,
+): HabitPersistedStateV2 {
+  return { version: 2, habits, completions, userSetup, lowEnergyDateKey };
 }
 
 export const useHabitStore = create<HabitStore>((set, get) => ({
@@ -99,6 +114,7 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
   habits: [],
   completions: [],
   userSetup: null,
+  lowEnergyDateKey: null,
 
   hydrate: async () => {
     const result = await readPersisted();
@@ -108,18 +124,19 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
         habits: data.habits,
         completions: data.completions,
         userSetup: data.userSetup,
+        lowEnergyDateKey: data.lowEnergyDateKey ?? null,
         hydrated: true,
       });
       if (migratedFromV1) {
         await writePersisted(data);
       }
     } else {
-      set({ habits: [], completions: [], userSetup: null, hydrated: true });
+      set({ habits: [], completions: [], userSetup: null, lowEnergyDateKey: null, hydrated: true });
     }
   },
 
   seedFromOnboarding: (payload) => {
-    const { habits, completions } = get();
+    const { habits, completions, lowEnergyDateKey } = get();
     const userSetup = payloadToUserSetup({
       identity: payload.identity,
       habitGoal: payload.habitGoal,
@@ -144,13 +161,13 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
       nextHabits = [habit];
     }
 
-    const next = toV2(nextHabits, completions, userSetup);
-    set({ habits: next.habits, completions: next.completions, userSetup: next.userSetup });
+    const next = toV2(nextHabits, completions, userSetup, lowEnergyDateKey);
+    set({ habits: next.habits, completions: next.completions, userSetup: next.userSetup, lowEnergyDateKey });
     void writePersisted(next);
   },
 
   applyUserSetupFromPayload: (payload) => {
-    const { habits, completions } = get();
+    const { habits, completions, lowEnergyDateKey } = get();
     const userSetup = payloadToUserSetup({
       identity: payload.identity,
       habitGoal: payload.habitGoal,
@@ -191,19 +208,23 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
       ];
     }
 
-    const next = toV2(nextHabits, completions, userSetup);
-    set({ habits: next.habits, completions: next.completions, userSetup: next.userSetup });
+    const next = toV2(nextHabits, completions, userSetup, lowEnergyDateKey);
+    set({ habits: next.habits, completions: next.completions, userSetup: next.userSetup, lowEnergyDateKey });
     void writePersisted(next);
   },
 
   toggleTodayCompletion: (habitId) => {
-    const { habits, completions, userSetup } = get();
-    if (!habits.some((h) => h.id === habitId)) return;
+    const { habits, completions, userSetup, lowEnergyDateKey } = get();
+    if (!habits.some((h) => h.id === habitId)) {
+      return { added: false, completionId: null };
+    }
 
     const todayKey = localDateKey();
     const existing = completions.find((c) => c.habitId === habitId && c.dateKey === todayKey);
 
     let nextCompletions: HabitCompletion[];
+    let result: ToggleCompletionResult = { added: false, completionId: null };
+
     if (existing) {
       nextCompletions = completions.filter((c) => c.id !== existing.id);
     } else {
@@ -215,10 +236,33 @@ export const useHabitStore = create<HabitStore>((set, get) => ({
         emotionScore: null,
       };
       nextCompletions = [...completions, row];
+      result = { added: true, completionId: row.id };
     }
 
-    const next = toV2(habits, nextCompletions, userSetup);
-    set({ completions: nextCompletions, userSetup: next.userSetup });
+    const next = toV2(habits, nextCompletions, userSetup, lowEnergyDateKey);
+    set({ completions: nextCompletions, userSetup: next.userSetup, lowEnergyDateKey });
+    void writePersisted(next);
+    return result;
+  },
+
+  toggleLowEnergyToday: () => {
+    const { habits, completions, userSetup, lowEnergyDateKey } = get();
+    const todayKey = localDateKey();
+    const nextKey = lowEnergyDateKey === todayKey ? null : todayKey;
+    const next = toV2(habits, completions, userSetup, nextKey);
+    set({ lowEnergyDateKey: nextKey });
+    void writePersisted(next);
+  },
+
+  setCompletionEmotion: (completionId, score) => {
+    if (score !== -1 && score !== 0 && score !== 1) return;
+    const { habits, completions, userSetup, lowEnergyDateKey } = get();
+    if (!completions.some((c) => c.id === completionId)) return;
+    const nextCompletions = completions.map((c) =>
+      c.id === completionId ? { ...c, emotionScore: score } : c,
+    );
+    const next = toV2(habits, nextCompletions, userSetup, lowEnergyDateKey);
+    set({ completions: nextCompletions });
     void writePersisted(next);
   },
 

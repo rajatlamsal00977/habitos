@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
@@ -12,6 +12,8 @@ import {
   FLOATING_TAB_BAR_SIDE_MARGIN,
   floatingTabBarBottomOffset,
 } from '@/constants/layout';
+import { syncDailyReminderFromStore } from '@/lib/notifications/daily-reminder';
+import { useHabitStore } from '@/store/useHabitStore';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -25,6 +27,17 @@ export default function TabLayout() {
   const palette = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const bottomOffset = floatingTabBarBottomOffset(Math.max(insets.bottom, 8));
+  const hydrated = useHabitStore((s) => s.hydrated);
+  const habits = useHabitStore((s) => s.habits);
+  const userSetup = useHabitStore((s) => s.userSetup);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    void syncDailyReminderFromStore(() => {
+      const { hydrated: h, habits: ha, userSetup: u } = useHabitStore.getState();
+      return { hydrated: h, habits: ha, userSetup: u };
+    });
+  }, [hydrated, habits, userSetup]);
 
   const tabBarBackground = () =>
     Platform.OS === 'web' ? (

@@ -9,10 +9,11 @@
 - **Phase 4 complete:** Today home layout (PRD §7 + `ui.json` home pattern): soft layered gradients, header (greeting, streak, points, avatar → Profile), mascot hero with Moti + gradient tile, low-energy chip, up to three habit cards with progress bars and Done toggle; floating pill tab bar with blur (`expo-blur`), glass-style fill, and shared spacing via `constants/layout` + `useTabBarContentPadding`.
 - **Phase 5 complete:** Habit domain + AsyncStorage persistence (`HABIT_STATE_STORAGE_KEY`): types in `types/habit.ts` + `types/habit-card.ts`, date + view-model helpers in `lib/habits/`, Zustand `store/useHabitStore.ts` (hydrate, seed from onboarding, toggle today completion, commitment streak), onboarding finish seeds first habit, `AuthProvider` hydrates after auth init, Today reads store (loading gate, empty state, streak/points from completions).
 - **Phase 7 complete:** Editable onboarding/setup — habit persisted state **v2** with `userSetup`; `applyUserSetupFromPayload`; modal [`app/setup-preferences.tsx`](app/setup-preferences.tsx); shared [`components/setup/SetupWizardUi.tsx`](components/setup/SetupWizardUi.tsx) + onboarding refactor; Profile + Today entry; `AuthGate` excludes `setup-preferences` from forced onboarding redirect.
+- **Phase 6 complete:** Low-energy day toggle persisted on habit state (`lowEnergyDateKey`); Today chip + habit card gentle copy; post-completion emotional check-in sheet (Worse / Same / Better → `emotionScore` -1/0/1); `expo-notifications` daily local reminder from primary habit reminder time + Profile opt-in switch (`DAILY_REMINDER_PREF_KEY`, default off); `syncDailyReminderFromStore` from tab layout; `useReducedMotion` on Today mascot/cards/check-in; Insights week emotion summary; `app.json` `expo-notifications` plugin.
 
 ## Immediate next step (pending user approval)
 
-- **Phase 6:** Low-energy mode, emotional check-in, notifications, a11y hardening.
+- **Phase 8 (suggested):** Backend / sync, mascot assets, or deeper Journey/Insights.
 
 ## Working agreements
 

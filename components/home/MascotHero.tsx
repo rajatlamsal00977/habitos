@@ -11,9 +11,10 @@ const MICROCOPY = [
 type Props = {
   streak: number;
   microcopyIndex?: number;
+  reduceMotion?: boolean;
 };
 
-export function MascotHero({ streak, microcopyIndex = 0 }: Props) {
+export function MascotHero({ streak, microcopyIndex = 0, reduceMotion = false }: Props) {
   const scheme = useColorScheme();
   const line = MICROCOPY[microcopyIndex % MICROCOPY.length];
   const gradientColors =
@@ -26,8 +27,12 @@ export function MascotHero({ streak, microcopyIndex = 0 }: Props) {
       <View className="flex-row items-center gap-5">
         <MotiView
           from={{ scale: 1 }}
-          animate={{ scale: [1, 1.04, 1] }}
-          transition={{ type: 'timing', duration: 2800, loop: true }}>
+          animate={{ scale: reduceMotion ? 1 : ([1, 1.04, 1] as const) }}
+          transition={
+            reduceMotion
+              ? { type: 'timing', duration: 0 }
+              : { type: 'timing', duration: 2800, loop: true }
+          }>
           <LinearGradient
             colors={[...gradientColors]}
             start={{ x: 0, y: 0 }}
